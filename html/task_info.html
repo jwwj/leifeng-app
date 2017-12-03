@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../css/api.css"/>
+    <style>
+    	body{
+    		
+    	}
+    </style>
+</head>
+<body>
+	<H1> 任务详情页 </H1>
+	<h2>抢单成功！</h2>
+	<div id="order_id"></div>
+	<div id="kd_type"></div>
+	<div id="kd_id"></div>
+	<div id="kd_place1"></div>
+	<div id="kd_time"></div>
+	<div id="kd_money"></div>
+	<div id="kd_place2"></div>
+	<div id="user_name"></div>
+	<div id="user_num"></div>
+	
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript">
+	apiready = function(){
+		var pageParam = api.pageParam;
+		alert(JSON.stringify(pageParam));
+	};
+</script>
+</html>

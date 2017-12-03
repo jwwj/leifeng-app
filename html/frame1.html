@@ -1,0 +1,195 @@
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="tephone=no,email=no,date=no,address=no">
+		<style type="text/css">
+			html {
+				background-color: white;
+			}
+			.hover {
+				opacity: .4;
+			}
+			span {
+				padding: 10px 15px;
+				margin: 10px;
+				display: inline-block;
+				background-color: #e8e8e8;
+			}
+		</style>
+	</head>
+	<body>
+		<!--		<article>
+		尝试手势下拉页面或者 "手动开启加载"
+		</article>-->
+	</body>
+</html>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript">
+	apiready = function() {
+		fun();
+		api.setCustomRefreshHeaderInfo({
+			bgColor : '#f0f0f0',
+			image : {
+				pull : 'widget://image/pullRefresh/pull.png',
+				transform : ['widget://image/pullRefresh/pull_end_image_frame_01.png', 'widget://image/pullRefresh/pull_end_image_frame_02.png', 'widget://image/pullRefresh/pull_end_image_frame_03.png', 'widget://image/pullRefresh/pull_end_image_frame_04.png', 'widget://image/pullRefresh/pull_end_image_frame_05.png'],
+				load : ['widget://image/pullRefresh/refreshing_image_frame_01.png', 'widget://image/pullRefresh/refreshing_image_frame_02.png', 'widget://image/pullRefresh/refreshing_image_frame_03.png', 'widget://image/pullRefresh/refreshing_image_frame_04.png', 'widget://image/pullRefresh/refreshing_image_frame_05.png', 'widget://image/pullRefresh/refreshing_image_frame_06.png']
+			}
+		}, function() {
+			//下拉刷新被触发，自动进入加载状态，使用 api.refreshHeaderLoadDone() 手动结束加载中状态
+			fun();
+			setTimeout(function() {
+				api.refreshHeaderLoadDone()
+			}, 1000);
+		});
+	}
+	function fnRefreshHeaderLoading() {
+		api.refreshHeaderLoading();
+	};
+	function fun() {
+		var userInfo = $api.getStorage('userInfo');
+		if (userInfo && userInfo.accessToken) {
+			api.ajax({
+				url : 'http://blog.reallct.cn/servlet/Task_1',
+				method : 'post',
+				data : {
+					values : {
+						"num" : userInfo.number,
+					},
+				}
+			}, function(ret, err) {
+				if (ret) {
+					//alert(JSON.stringify(ret));
+					var lst = [];
+					for ( i = 0; i < ret.length; i++) {
+						if (!ret.isMe) {
+							var obj1 = {};
+							obj1['task_id'] = ret[i].task_id;
+							obj1['subTitle'] = ret[i].kd_time;
+							obj1['title'] = ret[i].kd_place;
+							obj1['remark'] = ret[i].kd_money;
+							lst.push(obj1);
+						}
+					}
+					showListview(lst);
+				} else {
+					api.alert({
+						title : '登录失败',
+						msg : JSON.stringify(err)
+					});
+				}
+			});
+		}
+	}
+
+	function showListview(data) {
+		var UIListView = api.require('UIListView');
+		UIListView.open({
+			rect : {
+				x : 0,
+				y : 0,
+				w : api.winWidth,
+				h : api.frameHeight
+			},
+			data : data, //data是json不是string
+			styles : {
+				borderColor : '#696969',
+				item : {
+					bgColor : '#AFEEEE',
+					activeBgColor : '#F5F5F5',
+					height : 55.0,
+					imgWidth : 40,
+					imgHeight : 40,
+					imgCorner : 4,
+					placeholderImg : '',
+					titleSize : 12.0,
+					titleColor : '#000',
+					subTitleSize : 12.0,
+					subTitleColor : '#000',
+					remarkColor : '#000',
+					remarkSize : 16,
+					remarkIconWidth : 30
+				}
+			},
+			fixedOn : api.frameName
+		}, function(ret, err) {
+			if (ret) {
+				if (ret.eventType == 'clickContent' || ret.eventType == 'clickImg' || ret.eventType == 'clickRemark') {
+					UIListView.getDataByIndex({
+						index : ret.index
+					}, function(ret, err) {
+						if (ret) {
+							api.confirm({
+								title : '抢单',
+								msg : '任务：' + ret.data.title + '\n时间：' + ret.data.subTitle + '\n\n是否抢该单？',
+								buttons : ['确定', '取消']
+							}, function(ret2, err) {
+								var index = ret2.buttonIndex;
+								alert(index);
+								if (index == 1)
+									taskInfo(ret.data.task_id);
+							});
+						} else {
+							alert(JSON.stringify(err));
+						}
+					});
+				}
+			} else {
+				alert(JSON.stringify(err));
+			}
+		});
+	}
+
+	function taskInfo(num) {
+		api.openWin({
+			name : 'task_info',
+			url : 'task_info.html',
+			bounces : false,
+			pageParam : {
+				key : num
+			}
+		});
+	}
+
+	function closeButton(button) {
+		button.close({
+			id : 1
+		});
+	}
+
+	function addButton(button) {
+		button.open({
+			rect : {
+				x : api.winWidth - 100,
+				y : api.winHeight - 200,
+				w : 80,
+				h : 50
+			},
+			corner : 5,
+			bg : {
+				normal : '#000000',
+				highlight : '#ff0000',
+				active : '#adf000'
+			},
+			title : {
+				size : 14,
+				highlight : '高亮状态标题',
+				active : '选中后标题',
+				normal : '常态标题',
+				highlightColor : '#000000',
+				activeColor : '#000adf',
+				normalColor : '#ff0000',
+				alignment : 'center'
+			},
+			fixedOn : api.frameName,
+			fixed : true,
+			move : true
+		}, function(ret, err) {
+			if (ret) {
+				alert(JSON.stringify(ret));
+			} else {
+				alert(JSON.stringify(err));
+			}
+		});
+	}
+</script>
